@@ -6,9 +6,9 @@ This template creates the animated blue-green profile shown in this folder: a se
 
 1. Create a public repository named exactly like your GitHub username.
 2. Copy **the contents** of `Aqua-Launch` into it.
-3. Replace `assets/profile-source.png` with your portrait source.
+3. Replace `assets/Profile.jpg` with your portrait source.
 4. Edit `config.json` and the contact links in `README.md`.
-5. Install Pillow and run `python scripts/generate.py --demo`.
+5. Install Pillow and run `python scripts/generate.py` to fetch your live GitHub data and generate the assets.
 6. Push the repository and run the included GitHub Action once.
 
 ## Requirements
@@ -32,7 +32,7 @@ Copy everything **inside** `Aqua-Launch` into your repository root:
 your-username/
 ├── .github/workflows/update-profile.yml
 ├── assets/
-│   ├── profile-source.png
+│   ├── Profile.jpg
 │   ├── identity.svg
 │   ├── contributions.svg
 │   └── signal.svg
@@ -48,7 +48,7 @@ Important: `.github` may be hidden by your file manager. Copy it or automatic up
 
 ## 3. Add your portrait source
 
-Replace `assets/profile-source.png` with your own image. For the clearest ASCII portrait, use:
+Replace `assets/Profile.jpg` with your own image. For the clearest ASCII portrait, use:
 
 - A high-resolution portrait
 - Strong contrast between the person and background
@@ -64,10 +64,8 @@ Replace every example value:
 - `username`: your exact GitHub username
 - `name`: your full name
 - `wordmark`: the large animated ASCII text
-- `role`, `location`, and `status`: your profile information
-- `website`: your complete website URL
+- `role`: a presentation-specific role/title (GitHub public profile data supplies the name, location, bio, website, and languages automatically)
 - `photo`: the path to your source portrait
-- `skills`: up to six short skill names
 
 For the cleanest wordmark, use no more than eight uppercase letters, numbers, or spaces. The built-in alphabet supports `A–Z`, `0–9`, and spaces.
 
@@ -78,7 +76,7 @@ Example:
   "username": "your-username",
   "name": "Your Name",
   "wordmark": "YOURNAME",
-  "photo": "assets/profile-source.png"
+  "photo": "assets/Profile.jpg"
 }
 ```
 
@@ -92,16 +90,10 @@ Run these commands from the repository root:
 
 ```bash
 python -m pip install -r scripts/requirements.txt
-python scripts/generate.py --demo
-```
-
-The demo command verifies the portrait and layout without needing GitHub data. Then generate with live public data:
-
-```bash
 python scripts/generate.py
 ```
 
-With `GITHUB_TOKEN`, the generator uses GitHub GraphQL for contributions. Without a token, it falls back to GitHub’s public contribution page. If local requests are rate-limited, use the GitHub Action instead.
+The generator always uses your live public GitHub profile. With `GITHUB_TOKEN`, it uses GitHub GraphQL for the contribution calendar; without a token, it falls back to GitHub’s public contribution page. If local requests are rate-limited, use the GitHub Action instead.
 
 ## 7. Preview the result
 
@@ -147,13 +139,11 @@ My details:
 - ASCII wordmark, maximum 8 characters: [WORDMARK]
 - Role: [ROLE]
 - Location: [LOCATION]
-- Short status: [STATUS]
 - Website: [WEBSITE URL]
-- Skills, maximum 6: [SKILLS]
 - Contact email: [EMAIL]
 - Portrait image path: [PATH TO MY IMAGE]
 
-Please inspect the existing repository first. Copy or prepare my portrait as assets/profile-source.png without replacing the original source unless necessary. Update config.json and the contact links in README.md, preserve the Aqua Launch colors and animations, install the requirements, generate a demo first, then use live GitHub data if internet access is available. Verify that the portrait is truly ASCII, the wordmark fits, all SVG files are valid, all local Markdown links work, and the workflow is correctly placed. Do not modify unrelated files, and do not commit or push unless I explicitly ask.
+Please inspect the existing repository first. Copy or prepare my portrait as assets/Profile.jpg without replacing the original source unless necessary. Update config.json and the contact links in README.md, preserve the Aqua Launch colors and animations, install the requirements, then generate from live GitHub data. Verify that the portrait is truly ASCII, the wordmark fits, all SVG files are valid, all local Markdown links work, and the workflow is correctly placed. Do not modify unrelated files, and do not commit or push unless I explicitly ask.
 ```
 
 ## Animation behavior
