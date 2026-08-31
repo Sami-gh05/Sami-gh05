@@ -183,7 +183,7 @@ def demo_data() -> tuple[dict, dict]:
         level = rng.choices([1, 2, 3, 4], weights=[44, 30, 18, 8])[0] if active else 0
         days.append({"date": iso.isoformat(), "count": rng.randint(level, level * 4) if level else 0, "level": level})
     profile = {
-        "public_repos": 12,
+        "public_repos": 14,
         "followers": 26,
         "following": 36,
         "stars": 2,
