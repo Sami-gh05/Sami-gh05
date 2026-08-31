@@ -1,0 +1,11 @@
+{
+  "username": "Sami-gh05",
+  "name": "Sam Ghorbani",
+  "wordmark": "SAM",
+  "role": "django developer",
+  "location": "Iran · from Tehran",
+  "status": "Designing and building scalable web applications for organizations and businesses.",
+  "website": "https://sami-gh05.github.io/personal-portfolio-website/",
+  "photo": "assets/Profile.jpg",
+  "skills": ["Java", "Python", "Django", "FastAPI", "PostgreSQL", "C++"]
+}
