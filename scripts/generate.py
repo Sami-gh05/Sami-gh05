@@ -5,13 +5,16 @@ for the contribution calendar when GITHUB_TOKEN is available. A public HTML
 fallback keeps local generation usable without a token.
 
     python scripts/generate.py          # live public data
+    python scripts/generate.py --demo   # deterministic offline preview
 """
 
 from __future__ import annotations
 
+import argparse
 import html
 import json
 import os
+import random
 import re
 import urllib.error
 import urllib.request
@@ -103,22 +106,13 @@ def profile_data(username: str) -> dict:
     repos = request_json(f"https://api.github.com/users/{username}/repos?per_page=100&sort=updated")
     if not isinstance(user, dict) or not isinstance(repos, list):
         raise RuntimeError("Unexpected response from GitHub REST API")
-
-    original = [repo for repo in repos if not repo.get("fork") and not repo.get("archived")]
+    original = [repo for repo in repos if not repo.get("fork")]
     languages: dict[str, int] = {}
     for repo in original:
         language = repo.get("language")
         if language:
             languages[language] = languages.get(language, 0) + 1
-
-    # GitHub is the source of truth for profile metadata whenever it exists.
-    # Keep the output JSON-serializable so it can be passed directly to the SVG renderers.
     return {
-        "name": user.get("name") or username,
-        "bio": user.get("bio") or "",
-        "location": user.get("location") or "",
-        "website": user.get("blog") or "",
-        "company": user.get("company") or "",
         "public_repos": int(user.get("public_repos", len(repos))),
         "followers": int(user.get("followers", 0)),
         "following": int(user.get("following", 0)),
@@ -177,6 +171,25 @@ def contributions_html(username: str) -> dict:
     total = int(total_match.group(1).replace(",", "")) if total_match else sum(day["count"] for day in days)
     return {"total": total, "days": sorted(days, key=lambda item: item["date"])}
 
+
+def demo_data() -> tuple[dict, dict]:
+    rng = random.Random(430)
+    end = date.today()
+    start = end - timedelta(days=370)
+    days = []
+    for offset in range(371):
+        iso = start + timedelta(days=offset)
+        active = rng.random() > (0.69 if offset < 190 else 0.54)
+        level = rng.choices([1, 2, 3, 4], weights=[44, 30, 18, 8])[0] if active else 0
+        days.append({"date": iso.isoformat(), "count": rng.randint(level, level * 4) if level else 0, "level": level})
+    profile = {
+        "public_repos": 12,
+        "followers": 26,
+        "following": 36,
+        "stars": 2,
+        "languages": [["Python", 40], ["javascript", 25], ["Java", 19], ["C++", 6], ["php", 4]],
+    }
+    return profile, {"total": 311, "days": days}
 
 
 def trim(value: object, size: int) -> str:
@@ -329,30 +342,20 @@ def signal_svg(cfg: dict, profile: dict, contribution: dict) -> str:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--demo", action="store_true", help="use deterministic offline data")
+    args = parser.parse_args()
     cfg = load_config()
     username = os.environ.get("GH_USERNAME") or os.environ.get("GITHUB_REPOSITORY_OWNER") or cfg["username"]
     cfg["username"] = username
-
-    try:
-        profile = profile_data(username)
-        contribution = contributions_graphql(username) or contributions_html(username)
-    except (urllib.error.URLError, RuntimeError) as exc:
-        raise SystemExit(f"GitHub data request failed for @{username}: {exc}. Live generation requires network access.")
-
-    # GitHub is the source of truth for public profile metadata. Keep only
-    # presentation-specific fields in config.json (role, wordmark, and photo).
-    if profile.get("name"):
-        cfg["name"] = profile["name"]
-    if profile.get("location"):
-        cfg["location"] = profile["location"]
-    if profile.get("website"):
-        cfg["website"] = profile["website"]
-    if profile.get("bio"):
-        cfg["status"] = profile["bio"]
-
-    live_languages = [language for language, _ in profile.get("languages", [])]
-    if live_languages:
-        cfg["skills"] = live_languages[:6]
+    if args.demo:
+        profile, contribution = demo_data()
+    else:
+        try:
+            profile = profile_data(username)
+            contribution = contributions_graphql(username) or contributions_html(username)
+        except (urllib.error.URLError, RuntimeError) as exc:
+            raise SystemExit(f"GitHub data request failed: {exc}. Use --demo for an offline preview.")
     ASSETS.mkdir(exist_ok=True)
     (ASSETS / "identity.svg").write_text(identity_svg(cfg), encoding="utf-8")
     (ASSETS / "contributions.svg").write_text(contributions_svg(cfg, contribution), encoding="utf-8")
