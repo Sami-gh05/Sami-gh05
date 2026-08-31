@@ -187,7 +187,7 @@ def demo_data() -> tuple[dict, dict]:
         "followers": 26,
         "following": 36,
         "stars": 2,
-        "languages": [["Python", 40], ["javascript", 25], ["Java", 19], ["C++", 6], ["php", 4]],
+        "languages": [["Python", 40], ["Javascript", 25], ["Java", 19], ["C++", 6], ["php", 4]],
     }
     return profile, {"total": 311, "days": days}
 
